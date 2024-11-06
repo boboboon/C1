@@ -3,7 +3,7 @@ requires = ["setuptools", "wheel", "setuptools_scm"]  # Build requirements
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "c1"
+name = "C1"
 version = "0.1.0"
 requires-python = ">=3.8"
 
@@ -45,7 +45,4 @@ classifiers = [
 
 [project.scripts]
 # CLI command for your gbm_simulator
-simulate = "c1.gbm_simulator:main"
-
-[tool.hatch.build.targets.wheel]
-packages = ["c1"] 
+simulate = "C1.gbm_simulator:main"
