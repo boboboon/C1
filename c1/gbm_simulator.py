@@ -4,6 +4,7 @@ import argparse
 
 import matplotlib.pyplot as plt
 import numpy as np
+from loguru import logger
 
 
 class GBMSimulator:
@@ -44,6 +45,7 @@ class GBMSimulator:
             # Update using the Brownian motion with drift
             y_next = y_vals[-1] + self.mu * dt + self.sigma * dw
             y_vals.append(y_next)
+            logger.info(y_next)
 
         return np.linspace(0, t, n), y_vals
 
