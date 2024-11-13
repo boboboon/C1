@@ -2,10 +2,13 @@
 
 # %%
 # ? Question 1
+from timeit import timeit
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from ipywidgets import FloatSlider, interact
+from memory_profiler import memory_usage
 from scipy.interpolate import RegularGridInterpolator, griddata, interp1d
 from scipy.stats import qmc
 
@@ -172,7 +175,7 @@ interact(
 a_min, a_max = 0, 1
 b_min, b_max = -0.5, 0.5
 
-num_samples = 10
+num_samples = 100
 sampler = qmc.LatinHypercube(d=2)
 lhs_samples = sampler.random(n=num_samples)
 a_samples = lhs_samples[:, 0] * (a_max - a_min) + a_min
@@ -249,7 +252,6 @@ def plot_interactive(new_a: float = 0.5, new_b: float = 0.5) -> None:
             plt.plot(t, f_values, color="r", alpha=0.3)  # Original curves
     plt.plot(t, a_b_interpolated, color="b", label=f"Interpolated (a={new_a:.2f}, b={new_b:.2f})")
     plt.title("Function Curves with Interpolated Curve Highlighted")
-    plt.legend()
 
     # Subplot 2: Ratio Plot
     plt.subplot(2, 1, 2)
@@ -273,6 +275,45 @@ b_slider = FloatSlider(
 # Using interact to link sliders and plot function
 interact(plot_interactive, new_a=a_slider, new_b=b_slider)
 
-# Struggles around 0's unless at maximums for a and b?
+# Ratio around 0 spikes as small imperfections will spike.
 
+
+# %%
+# ? Question 13
+# Compare memory and time of (i) the original function call and (ii) the interpolator call.
+def original_function_call(t: float, a: float, b: float, c: float) -> np.array:
+    """Calls our original function nicely.
+
+    Args:
+        t (float): _description_
+        a (float): _description_
+        b (float): _description_
+        c (float): _description_
+
+    Returns:
+        np.array: _description_
+    """
+    return np.array([f(t_val, a, b, c) for t_val in t])
+
+
+# Interpolator call
+def interpolator_call(new_a: int, new_b: int) -> np.array:
+    """Calls our interpolator instead.
+
+    Args:
+        new_a (int): _description_
+        new_b (int): _description_
+
+    Returns:
+        np.array: _description_
+    """
+    new_points = np.array([(t_val, new_a, new_b) for t_val in t])
+    return griddata(points, values, new_points, method="nearest")
+
+
+time_original = timeit(lambda: original_function_call(t, new_a, new_b, c), number=10)
+time_interpolator = timeit(lambda: interpolator_call(new_a, new_b), number=10)
+
+memory_original = memory_usage((original_function_call, (t, new_a, new_b, c)), interval=0.01)
+memory_interpolator = memory_usage((interpolator_call, (new_a, new_b)), interval=0.01)
 # %%
